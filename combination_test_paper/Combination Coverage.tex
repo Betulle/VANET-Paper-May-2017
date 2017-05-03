@@ -1,0 +1,55 @@
+% FILENAME：summary.tex
+% AUTHOR：Yuliang
+% Template of SUMMARY
+% 2010-11-30
+\documentclass{article}
+\renewcommand{\baselinestretch}{2}
+\usepackage{CJKutf8}
+\usepackage{wrapfig}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage[margin=2cm]{geometry}
+
+\hypersetup{
+    colorlinks,
+    citecolor=green,
+    filecolor=magenta,
+    linkcolor=red,
+    urlcolor=blue
+}
+\usepackage{indentfirst}
+\begin{document}
+\large
+\begin{CJK}{UTF8}{gkai}
+
+\title{组合覆盖率}
+\author{张磊}
+\maketitle
+\subsection*{组合覆盖率}
+
+$i\_ways$覆盖率的定义：
+\begin{equation}
+C_i^{(n)}=\frac{m_i(n)}{M_i}
+\end{equation}
+\\其中$m_i(n)$代表第n个测试用例结束后，已经用到的总的$i\_ways$组合的个数，它是关于n的函数。$M_i$是总的$i\_ways$的组合个数。
+\begin{equation}
+Coverage_c(n)=C_1^{(n)} \cdot \frac{B_1(n)}{B(n)}+C_2^{(n)} \cdot \frac{B_2(n)}{B(n)}+C_3^{(n)} \cdot \frac{B_4(n)}{B(n)}+C_5^{(n)} \cdot \frac{B_i(n)}{B(n)}...+C_i^{(n)} \cdot \frac{B_i(n)}{B(n)}
+\end{equation}
+\\其中
+\begin{equation}
+$B(n)= \sum_{i=1}^N B_i(n) $
+\end{equation}
+\\$B_i(n)$为第n个测试用例结束后，对总的$i\_ways$的缺陷个数的估计值（因为开始时，不知道软件中的缺陷数，所以在测试的过程当中要对总的缺陷数进行估计），$B(n)$为系统当中总的缺陷数（这也是个估计值）。
+\\其中$B_i(n)$的计算方式为：$\frac{B_i(n)}{b_i(n)}=\frac{M_i}{m_i(n)}$,由此可得
+\begin{equation}
+B_i(n)=\frac{M_i}{m_i(n)} \cdot b_i(n)
+\end{equation}
+\\其中$b_i(n)$是n个测试用例结束后前n个测试用例发现的$i\_ways$总的缺陷数。
+\\将公式（1）（4）带入到公式（2）中可以化简得到
+\begin{equation}
+Coverage_c(n)=\frac{\sum_{i=1}^N b_i(n)}{B(n)}
+\end{equation}
+\\其中公式（5）的含义是，n个测试用例结束后，组合覆盖率=发现的缺陷的总的个数／估计的总的缺陷数
+\\总结：通过以上文档可以看到，首先我们定义了$i\_ways$的覆盖率，然后我们定义了组合覆盖率，根据组合覆盖率的定义我们可以看出，组合覆盖率是通过$i\_ways$的覆盖率乘以其对应的权值，其中$i\_ways$的覆盖率的权值是$i\_ways$检测的缺陷数$B_i(n)$与我们估计的总的缺陷数$B(n)$的比值，这样以来我们就将组合覆盖率与缺陷的发现率联系到了一起，就像我们公式（5）定义的那样。
+\end{CJK}
+\end{document}

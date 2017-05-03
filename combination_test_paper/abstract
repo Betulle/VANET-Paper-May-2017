@@ -1,0 +1,27 @@
+
+Combinatorial testing is 
+very efficient to test parameterized systems. 
+Kuhn et al. investigated the interaction faults of
+some real programs, and found that the faulty combinations they studied 
+are caused by 
+the combination of no more than 6 parameters.
+In CT, we typically use \emph{covering arrays} (CA) as the test suite.
+In software testing,
+we should consider test effectiveness as well as efficiency for a SUT. 
+And the efficicient test case require that the generated test case 
+should contribute much useful information which can be use to 
+find faults in the SUT.
+we propose an weighted combinatorial coverage metric,
+which is used to detect as many defects with as
+less cost as possible, and also to detect defects as early as possible.
+We design an algorithm based on this metric focus on selecting the optimized 
+test case that has the highest fault detection rate, 
+instead of selecting at 100 percent combinatorial coverage.
+Our approach is based on the one-test-at-a-time strategy.
+For generating each test case, our method first randomly generates several
+candidates, and selects the one that has the highest fault-detection
+possibility. The fault-detection ability score is calculated based on the
+presumed distribution of faulty combination size, 
+and we prove the theorem that combinatorial coverage rate 
+equals to the fault detection rate.
+we did the simulation to checke the efficiency for our algorithm. 

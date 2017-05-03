@@ -1,0 +1,8 @@
+/a1_picture/ 中是算法一最终实验结果（.eps and .fig）
+/a2_1_picture/ 中是算法二，第一种权值更新方式最终实验结果（.eps and .fig）
+/a2——2_picture/ 中是算法二，第二种权值更新方式最终实验结果（.eps and .fig）
+/a3_picture/ 中是算法三最终实验结果（.eps and .fig）
+/CT/中是算法一，二，三的流程图
+./CombinationCoverage.pdf 是组合测试的定义以及数学推到过程
+./数学公式推到.pdf 记录的是我们论文中用到的所有数学公式的推到过程
+./论文结构.pdf 记录的我们对论文编写的最初中文版本

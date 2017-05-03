@@ -1,0 +1,1064 @@
+\documentclass[10pt,journal,letterpaper,compsoc]{IEEEtran}
+
+\usepackage{cite}
+\usepackage[dvips]{graphicx}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{array}
+\usepackage{float}
+\usepackage[tight,footnotesize]{subfigure}
+\usepackage{url}
+\usepackage{multirow}
+\newcommand\du{\mathrm{d}}
+
+\usepackage[cmex10]{amsmath}
+\interdisplaylinepenalty=2500
+
+% \hyphenation{op-tical net-works semi-conduc-tor}
+
+
+\begin{document}
+
+\title{Ensuring the performance of Apache Web Server affected by aging}
+
+\author{Jing~Zhao, Kishor~S.~Trivedi, Yanbin~Wang%
+\IEEEcompsocitemizethanks{\IEEEcompsocthanksitem Jing Zhao is with the
+Department of Computer Science and Technology, Harbin Engineering
+University, Harbin, China, 150001\protect\\
+E-mail: jingzhao.duke@gmail.com
+\IEEEcompsocthanksitem Kishor S. Trivedi is with the Department of
+Electrical and Computer Engineering, Duke University, Durham, USA, 27708
+\IEEEcompsocthanksitem Yanbin Wang is with the Department of
+Industrial Engineering, Harbin Institude of Technology,
+Harbin, China, 150001}%
+\thanks{}}
+
+% The paper headers
+\markboth{IEEE Transactions on Dependable and Secure Computing,~Vol.~?, No.~?, May~2012}%
+{Jing Zhao \MakeLowercase{\textit{et al.}}: Ensuring the performance of Apache Web Server affected by aging}
+% The only time the second header will appear is for the odd numbered pages
+% after the title page when using the twoside option.
+% 
+% *** Note that you probably will NOT want to include the author's ***
+% *** name in the headers of peer review papers.                   ***
+% You can use \ifCLASSOPTIONpeerreview for conditional compilation here if
+% you desire.
+
+
+
+% The publisher's ID mark at the bottom of the page is less important with
+% Computer Society journal papers as those publications place the marks
+% outside of the main text columns and, therefore, unlike regular IEEE
+% journals, the available text space is not reduced by their presence.
+% If you want to put a publisher's ID mark on the page you can do it like
+% this:
+%\IEEEpubid{0000--0000/00\$00.00~\copyright~2007 IEEE}
+% or like this to get the Computer Society new two part style.
+%\IEEEpubid{\makebox[\columnwidth]{\hfill 0000--0000/00/\$00.00~\copyright~2007 IEEE}%
+%\hspace{\columnsep}\makebox[\columnwidth]{Published by the IEEE Computer Society\hfill}}
+% Remember, if you use this you must call \IEEEpubidadjcol in the second
+% column for its text to clear the IEEEpubid mark (Computer Society jorunal
+% papers don't need this extra clearance.)
+
+% for Computer Society papers, we must declare the abstract and index terms
+% PRIOR to the title within the \IEEEcompsoctitleabstractindextext IEEEtran
+% command as these need to go into the title area created by \maketitle.
+\IEEEcompsoctitleabstractindextext{%
+\begin{abstract}
+%\boldmath
+A number of studies have reported the phenomenon of ``software aging'',
+characterized by progressive software performance degradation.
+Response time (RT) as a customer-affecting metric can be used to detect
+the onset of software aging.
+In this paper, we propose the distribution based rejuvenation algorithm
+(DBRA)by using a validated M/E$_2$/1/K queueing model of Apache web server
+that is used to help detect aging.
+We compare the DBRA  with the
+SRAA (static software rejuvenation with averaging) presented by Alberto Avritzer et.al.
+Simulation results show the effectiveness of DBRA and is advantage over SRAA
+to help set various control parameters.
+\end{abstract}
+% IEEEtran.cls defaults to using nonbold math in the Abstract.
+% This preserves the distinction between vectors and scalars. However,
+% if the journal you are submitting to favors bold math in the abstract,
+% then you can use LaTeX's standard command \boldmath at the very start
+% of the abstract to achieve this. Many IEEE journals frown on math
+% in the abstract anyway. In particular, the Computer Society does
+% not want either math or citations to appear in the abstract.
+
+% Note that keywords are not normally used for peer review papers.
+\begin{keywords}
+queueing model, response time distribution, distribution based rejuvenation algorithm,
+static software rejuvenation with averaging, software aging detection
+\end{keywords}}
+
+% make the title area
+\maketitle
+
+% To allow for easy dual compilation without having to reenter the
+% abstract/keywords data, the \IEEEcompsoctitleabstractindextext text will
+% not be used in maketitle, but will appear (i.e., to be "transported")
+% here as \IEEEdisplaynotcompsoctitleabstractindextext when compsoc mode
+% is not selected <OR> if conference mode is selected - because compsoc
+% conference papers position the abstract like regular (non-compsoc)
+% papers do!
+\IEEEdisplaynotcompsoctitleabstractindextext
+% \IEEEdisplaynotcompsoctitleabstractindextext has no effect when using
+% compsoc under a non-conference mode.
+
+
+% For peer review papers, you can put extra information on the cover
+% page as needed:
+% \ifCLASSOPTIONpeerreview
+% \begin{center} \bfseries EDICS Category: 3-BBND \end{center}
+% \fi
+%
+% For peerreview papers, this IEEEtran command inserts a page break and
+% creates the second title. It will be ignored for other modes.
+\IEEEpeerreviewmaketitle
+
+\section{Introduction} % I
+\label{intro}
+It is well known that system outages are more due to software faults than due to hardware faults \cite{ChScience:SGarg1998IEEEJC}.
+Software system faults can be classified into three types according to the
+potential manifestation characteristic:
+Bohrbugs, Mandelbugs, and Aging-related bugs,
+a sub-type of the Mandelbugs \cite{ChScience:MGrottke2007IEEEMC},
+Grottke et al. analyzed the faults discovered in the on-board software for
+18 JPL/NASA space missions \cite{ChScience:MGrottke2010DSN}
+based on this classification method. Software aging is the phenomenon of
+progressive performance degradation of the running software,
+which may lead to system crashes or undesirable hangs \cite{ChScience:SGarg1998ISSRE}.
+It may happen due to the exhaustion of system resources, such as memory-leaks,
+unreleased locks, non-terminated threads, shared-memory pool latching,
+storage fragmentation, or the like \cite{ChScience:YHuang1995SFTC}.
+This undesired phenomenon exists not only in generally used software such as web
+and application servers, but also in critical applications requiring high
+reliability/availability.
+Software aging could cause great losses in
+the safety-critical systems \cite{ChScience:YFJia2008APSEC},
+including the loss of human lives \cite{ChScience:EMarshall1992Science}.
+Software aging does not make software fail immediately once started,
+but instead it leads to progressive performance degradation of the system until
+the system hangs or crashes.
+To counteract software aging, researchers have proposed a proactive approach
+called software rejuvenation (SR) \cite{ChScience:SGarg1998ISSRE}.
+Rejuvenation has been implemented in various systems,
+such as billing data collection systems, telecommunication systems,
+transaction processing systems and spacecraft
+systems \cite{ChScience:KYCai2006JCST}, \cite{ChScience:KJCassidy2002ICDS},
+\cite{ChScience:XMZhang2002JSS}.
+It involves occasionally terminating the system,
+cleaning its internal state and restarting it in order to release system resources,
+so that the software performance is recovered.
+Thus, SR mends the system before it fails.
+
+The aging behavior can be captured by one or more indicators of aging.
+Such indicators are measurable metrics of the server likely to be influenced
+by software aging.
+Software aging and performance degradation can be gauged by monitoring system
+resources from or monitoring at the application level.
+Measurable metrics of system resources, are amount of memory free,
+swap space free, etc., while response time is a key measure of the performance
+at the user/application level.
+The variation of response time can be used to infer the evolving process of
+software aging.
+From the client’s perspective, gradually increasing response time can be
+a sign of software aging caused by performance degradation of the server.
+Response time (RT) as a customer-affecting metric obtained by continuous monitoring,
+can be used to detect the need for rejuvenation so as to counteract the effect
+of software performance degradation. 
+Alberto Avritzer et al. have wittnessed the aging in telecomcommunations'
+software, where the service rate of the software decreases with time
+increasing the queue lengths and eventually starts losing packets.
+By frequently monitoring the metric of RT,
+the average of RT samples can be obtained.
+Alberto Avritzer et al. built an analytical model of
+the M/M/c queueing model, and
+proposed algorithms for the detection software aging
+and subsequent rejuvenation
+based on the measured RT values \cite{ChScience:AAvritzer2006DSN}.
+
+The online monitoring algorithm can distinguish between the system performance
+degradation that is a consequence of aging and that due to bursts
+in the arrival process.
+By frequently sampling the customer affecting metric based on actual
+measurements and by storing the measurement results that are larger than
+the expected value of the customer affecting metric as a continuous set of buckets,
+a ball is removed or added to the current bucket.
+This process is repeated until it is monitored that the customer affecting metric
+degrades so much to become larger than the expected value plus the number of
+standard deviations \cite{ChScience:AAvritzer2006DSN}.
+Alberto Avritzer et al. proposed three algorithms,and used the number of buckets,
+the sample size of RT, and the bucket depth 
+to control the time to rejuvenation.
+In the first algorithm, called static software rejuvenation with averaging (SRAA), 
+the observed values of RT are averaged over a fixed sample size.
+The second algorithm, called static software rejuvenation with averaging 
+and sample acceleration (SARAA), reduces the sample size when a degradation in 
+performance is detected. The two algorithms smooth short-term deviations
+of the RT by using multiple buckets, the bucket depth, and the number of 
+successive observations. Compared with the above mentioned algorithms using 
+small sample size, the third algorithm called CLTA use the large sample size 
+to approximate the normal distribution, and then follow the central limit 
+theorem. The performance of SRAA, SARAA and CLTA algorithm is evaluated 
+by adjusting the control parameters using simulation. 
+We collected the average of the measured response time samples and
+when it exceeds the target quantile of the RT distribution,
+a rejuvenation is then triggered.
+To obtain the target quantile of RT distribution,
+an analytic model is developed here and utilized.
+Based on the distribution of mean of RT, we develop the distribution based
+rejuvenation algorithm (DBRA) to directly control the rejuvenation, instead of using the static
+software rejuvenation with averaging algorithm(SRAA) 
+presented by Avritzer.
+
+The Apache server has been the most popular web server used on
+the Internet \cite{ChScience:Apache},
+and is known to suffer from software aging \cite{ChScience:MGrottke2006IEEEJR}.
+Since the Apache web server, the most commonly used web server to
+date \cite{ChScience:NetcraftWSSA} \cite{ChScience:MGrottke2006IEEEJR},
+we select it conduct software aging and rejuvenation experiments.
+The sample average of measured RT is compared against quantile of
+theoretical response time to determine if measured RT significantly exceeds
+the nominal value that suggesting onset or aging.
+While the Apache server is multi-threaded,
+a request is handled by its own thread or process throughout
+the life cycle of the request, a limit is put on the number of processes
+allowed at one time in the server, and some parameters need to be
+customized \cite{ChScience:SGarg1998IEEEJC}, \cite{ChScience:YFJia2008ISSRE},
+\cite{ChScience:JCao2003ICT}.
+The effect of aging of the Apache server may result in unavailability
+as well as the gradual performance degradation,
+or the gradually decreasing service rate \cite{ChScience:SGarg1998IEEEJC}.
+In practice, these kinds of factors need to be considered to build the
+queueing model of the Apache web server.
+Therefore, an accurate analytical model of the Apache web server is needed
+to be built and validated by experimental measurement,
+and then the response time distribution can be obtained,
+which may facilitate in triggering rejuvenation using the algorithm of DBRA
+mentioned above.
+
+In summary, our main contributions are as follows:
+\begin{itemize}
+ \item We propose the distribution based algorithm to ensure the performance of Apache web server.
+ It use the degree of confidence directly to control when to rejuvenation,
+ whereas the bucket algorithm such as SRAA, employ the number of buckets and 
+ bucket depth to control the rejuvenation.
+ It has some advantages over the bucket algorithm proposed by Avrizter.    
+ \item We first validate the Apache web server at the aging setting 
+ using M/E$_2$/1/K queuing model. Furthermore, we calculate the RT distribution, 
+ and obtain the numerical value of RT distribution.
+ \item We combine the analytical model, the simulation model and experiment together to ensure the performance of Apache web server.
+\end{itemize}
+
+This paper is an extension of our previous conference paper\cite{ChScience:JingZhaoWoSAR11}. 
+We have made the following new contributions. First, we propose the distribution base rejuvenation algorithm(DBRA) 
+using the degree of confidence to control the rejuvenation. 
+Second, we numerically obtain the quantile for the specific degree of confidence
+using SHARPE \cite{ChScience:KSTrivedi2005ACM}.
+Third, we develop the simulation program to validate the distribution based rejuvenation algorithm(DBRA),
+and also we compare the effectiveness of DBRA and SRAA with changing control parameters.
+
+The rest of the paper is organized as follows.
+In Section \ref{sec:relatedwork}, we 
+present an overview of related work.
+In Section \ref{sec:queueingModel},
+the queueing model of the Apache web server is built based on Markov chains,
+and is validated by experimental results.
+In Section \ref{sec:responseTimeDist},
+firstly, RT distribution of M/E$_2$/1/K model, $F_R(t)$,
+is obtained by tagged job approach.
+The mean and variance of $F_R(t)$ are derived by solving approximation to
+the absorption time distribution of a continuous-time Markov chain (CTMC).
+Secondly, distribution of the mean of RT, $F_{\overline{R}}$,
+is calculated by time to absorption of CTMC,
+the mean and variance of $\overline{R_n}$, is also calculated.
+We numerically calculated using SHARPE \cite{ChScience:KSTrivedi2005ACM}.
+In Section \ref{sec:simResults},
+the distribution based rejuvenation algorithm (DBRA) is proposed,
+and we compare the performance of DBRA with the SRAA presented by Alberto by simulation.
+The effectiveness of these two algorithms are compared by
+adjusting the control parameters.
+Finally, concluding remarks and future research are discussed
+in Section \ref{sec:conclusion}.
+
+\section{Related Work}
+\label{sec:relatedwork}
+To the best of our knowledge, there exists two other approaches
+in several related areas. Admission and flow control algorithms 
+are designed to prevent from overload and speed mismatches, and 
+thus guarantee the required quality of service (QoS) of the network. 
+Flow control algorithms are designed to balance the load to protect 
+the bottleneck resources. Network flow control mechanisms has been 
+classified into hop-level flow control, entry-to-exit flow control,
+and network access flow control \cite{ChScience:AAvritzer1997ESE}.
+Gilly et al. proposed an adaptive control and load balancing algorithm
+for the web system. They proposed an adaptive time slot
+to set the frequencies of the algorithm invoked, in order to achieve
+the low overhead of the algorithm \cite{Gilly2012informationscience}.
+Flow control supports high quality real-time applications such as voice 
+and video, et al. presents the application flow control technique
+used by YouTube \cite{ChScience:SAlcock2011ACMSIGCOMMCCR}.
+Menth et al. give a survey of pre-congestion notification based admission
+control method in an early stage of standardized process \cite{ChScience:Michael2010IEEEcommunition}.
+Chen et al. proposed a utility based flow control algorithm for 
+wireless sensor network, they formulate a flow control optimization problem
+with life time constraint and link interference in an asynchronous 
+setting \cite{ChScience:JChen2010IEEEJournal}
+%%\cite
+
+Another related area is the statistical process control(SPC) method for quality 
+management. SPC use statistical methods and procedures (such as control charts)
+to analyze the inherent variability of a process to achieve and maintain a state 
+of statistical control, and to improve the process capability.
+SPC has been widely used in the manufacturing industry for a long time.
+Control charts has two assumptions that hard to meet the software system performance
+testing, one assumption is 
+that the outputs have a uni-modal normal distribution,
+and the second assumption is that the load inputs do not vary across runs.
+In order to apply the SPC method to software system 
+performance regression testing, Nguyen et al. 
+proposed an approach to customize the control charts to automatically detect the 
+performance regressions \cite{ChScience:THDNguyen2012ACM}.
+
+\section{The Queueing Model of Apache Web Server} % II
+\label{sec:queueingModel}
+The queueing model of the Apache web server is built as follows:
+Firstly, the experimental setting of the Apache web server is introduced
+in detail;
+secondly, the queueing model of the Apache web server is built based
+on continuous time Markov chain (CTMC),
+the mean of RT obtained from the queueing model is validated by
+the measurement RT.
+
+\subsection{Apache web server} % 2.1
+\label{subsec:apacheWebServer}
+The Apache web server is structured as a pool of workers
+(either threads or processes, depending on the specific software release),
+as shown in Figure \ref{fig:apacheArch}.
+
+\begin{figure}[htb]
+\centering
+\includegraphics[width=0.45\textwidth]{apacheArchitecuture}
+\caption{Apache architecture}
+\label{fig:apacheArch}
+\end{figure}
+
+Requests enter the server at the accept queue,
+where they wait until a worker is available.
+A worker is available if it is in the ``idle'' state.
+While the worker is processing a request, it is in the ``busy'' state.
+The widely used HTTP 1.1 protocol provides for persistent connections.
+The Maxclients parameter limits the size of this worker pool,
+thereby imposing a limitation on the processing rate of the server.
+A parent process is responsible for launching child processes to
+handle requests, and adjusting the child processes by killing
+or spawn to meet workload.
+
+The capacity of the web server depends on its configuration.
+To assess the impact of MaxRequestsPerChild and MaxClients,
+we adjust the parameter that can speed up the accumulation of side effects
+of residual defects, i.e, MaxResquestPerchild.
+This parameter is set to zero, which means no child processes will
+ever be killed.
+The other parameter, i.e, MaxClients is set to 250.
+The connection rate of the data set varies from 350 per second to 390
+per second during a 14-day period to represent different workload levels.
+We conclude that under this setting the capacity of the web server is
+about 390 requests per second.
+Data were recorded at five-minute intervals.
+
+\subsection{Queueing model for the Apache web server} % 2.2
+\label{subsec:queueingModel}
+The queueing model is built according to the Apache working mechanism as
+well as experimental parameter settings.
+Transaction service rate, $\mu(t)$ is defined to be a monotone
+non-increasing function of $t$ \cite{ChScience:SGarg1998IEEEJC},
+and this behavior of $\mu(t)$ was used as an approximation to service
+degradation in telecommunications
+switching software \cite{ChScience:AAvritzer1997ESE}.
+The constant service rate of the exponential distribution can clearly
+not represent gradually decreasing rate,
+whereas the Erlang distribution provides much more flexibility
+than the exponential distribution,
+and is a reasonable assumption for representing the software aging.
+Even though the transaction service may not actually consist of $r$ phases,
+it still can be regarded as having the Erlang distribution.
+Thus, the service time is denoted by the $r$-stage Erlang distribution,
+service discipline is FCFS,
+arriving transactions are queued and the buffer size is $K$.
+The queueing model is thus M/E$_r$/1/K \cite{ChScience:KSTrivedi2001PS},
+which can be represented by the CTMC shown in Figure \ref{fig:MME2K}.
+In this paper, we select a $2$-stage Erlang as service time distribution,
+thus the queueing model is M/E$_2$/1/K.
+
+\begin{figure}[htb]
+\centering
+\includegraphics[width=0.5\textwidth]{MME2K}
+\caption{M/E$_2$/1/k transform state}
+\label{fig:MME2K}
+\end{figure}
+
+The steady-state balance equations of the M/E$_r$/1 model can be
+written as follows \cite{ChScience:DGross1985FQ},
+where $n$ is the number of phases in the system:
+\begin{eqnarray}
+\label{equ:eq1}
+  \begin{cases}
+    0=-(\lambda+k\mu)\pi_n+k\mu \pi_{n+1}+\lambda \pi_{n-k} & n\geq 1 \cr
+    0=-\lambda \pi_0+k\mu \pi_1 &
+  \end{cases}
+\end{eqnarray}
+
+We can rewrite the M/E$_2$/1/K model into the following
+steady-state balance equations,
+\begin{eqnarray}
+\label{equ:eq2}
+  \begin{cases}
+    0=-(\lambda+2\mu)p_n+2\mu p_{n+1}+\lambda p_{n-2}\cr
+            ~~~~~~~~(1\leq n\leq 2K-2) \cr
+    0=-\lambda p_0+2\mu p_1 (n=0) \cr
+    0=-2\mu p_{2k-1}+2\mu p_{2k}+\lambda p_{2k-3}(n=2K-1) \cr
+    0=-2\mu p_{2k}+\lambda p_{2k-2}(n=2K) \cr
+    \sum_{n=0}^{2k}p_n=1
+  \end{cases}
+\end{eqnarray}
+
+The steady state $\pi_n$ of M/E$_2$/1 can be simplified to
+solve the Bulk Input model of $M^{[x]}$/M/1.
+
+With,
+\begin{equation}
+\label{equ:eq3}
+p_0=1-\frac{\lambda}{\mu}=1-\rho
+\end{equation}
+
+We use a generating function approach, where
+\begin{equation}
+\label{equ:eq4}
+P(z)=\sum_{n=0}^{\infty} p_nz^n(\left\vert z\right\vert\leq 1),~and~C(z)=\sum_{n=1}^{\infty} c_nz^n(\left\vert z\right\vert\leq 1)
+\end{equation}
+
+Making the above transformations in (\ref{equ:eq1}) yields,
+\begin{equation}
+\label{equ:eq5}
+P(z)=\frac{\mu^{(B)}p_0(1-z)}{\mu^{(B)}(1-z)-\lambda z(1-C(z))}(\left\vert z\right\vert\leq 1)
+\end{equation}
+where, $\mu^{(B)}=B\mu$
+
+We can use formula (\ref{equ:eq5}) directly to obtain $P(z)$,
+realizing that $C(z)$ is merely equal to $z^B$,
+since the batch size is fixed at $B$ equaling 2.
+We can obtain here
+\begin{equation}
+\label{equ:eq6}
+P(z)=\frac{2\mu p_0(1-z)}{2\mu(1-z)-\lambda z(1-z^2)}(\left\vert z\right\vert\leq 1)
+\end{equation}
+
+Further, formula (\ref{equ:eq6}) can be simplified to
+\begin{equation}
+\label{equ:eq7}
+P(z)=-\frac{2}{\rho}\cdot\frac{1-\rho}{z^2+z-2/\rho}(\left\vert z\right\vert\leq 1)
+\end{equation}
+
+Partial fraction of formula (\ref{equ:eq7}) yields,
+\begin{eqnarray}
+\label{equ:eq8}
+  \begin{aligned}
+  &P(z)=\frac{2}{\rho}\cdot \frac{1-\rho}{\sqrt{1+8/\rho}}\cdot \cr
+  &\left[
+    \begin{aligned}
+      &\frac{2}{(-1+\sqrt{1+8/\rho})}\cdot\frac{1}{1-\frac{2}{-1+\sqrt{1+8/\rho}}\cdot z}-\cr
+      &\frac{2}{(-1-\sqrt{1+8/\rho})}\cdot\frac{1}{1-\frac{2}{-1-\sqrt{1+8/\rho}}\cdot z}
+    \end{aligned}
+  \right] \cr
+  &~~~~~~~~(\left\vert z\right\vert\leq 1)
+  \end{aligned}
+\end{eqnarray}
+
+Formula \ref{equ:eq8} can be written in Taylor series formula as follows:
+\begin{eqnarray}
+\label{equ:eq9}
+  \begin{aligned}
+  &P(z)=\frac{2}{\rho}\cdot \frac{1-\rho}{\sqrt{1+8/\rho}}\cdot\sum_{n=0}^{\infty}\left( (\frac{2}{-1+\sqrt{1+8/\rho}})^{n+1}\right. \cr
+  &\left. -(\frac{2}{-1-\sqrt{1+8/\rho}})^{n+1} \right)\cdot z^n(\left\vert z\right\vert\leq 1)
+  \end{aligned}
+\end{eqnarray}
+
+$\pi_n$, the probability of $n$ phases in the Erlang service system,
+is given by
+\begin{eqnarray}
+\label{equ:eq10}
+  \begin{aligned}
+  &\pi_n=\frac{2}{\rho}\cdot \frac{1-\rho}{\sqrt{1+8/\rho}}\cdot \left( (\frac{2}{-1+\sqrt{1+8/\rho}})^{n+1}\right. \cr
+  &\left. -(\frac{2}{-1-\sqrt{1+8/\rho}})^{n+1} \right)
+  \end{aligned}
+\end{eqnarray}
+
+The steady state $p_n$ of M/E$_2$/1/K is normalized by
+\begin{equation}
+\label{equ:eq11}
+p_n=\frac{1}{C}\pi_n
+\end{equation}
+
+Summing two sides of (\ref{equ:eq11}), we derive
+\begin{equation}
+\label{equ:eq12}
+\sum_{n=0}^{2K}p_n=\frac{1}{C}\sum_{n=0}^{2K}\pi_n=1
+\end{equation}
+
+We obtain $C$ from (\ref{equ:eq12}),
+let $q_0=\frac{2}{-1+\sqrt{1+8/\rho}}$, $q_1=\frac{2}{-1+\sqrt{1+8/\rho}}$,
+\begin{equation}
+\label{equ:eq13}
+C=\frac{2}{\rho}\cdot\frac{1-\rho}{\sqrt{1+8/\rho}}\left( \frac{q_0-q_0^{2K+2}}{1-q_0}-\frac{q_1-q_1^{2K+2}}{1-q_1} \right)
+\end{equation}
+
+Thus,
+\begin{equation}
+\label{equ:eq14}
+p_n=\frac{1}{C}\pi_n=\frac{1}{C}\cdot\frac{2}{\rho}\cdot\frac{1-\rho}{\sqrt{1+8/\rho}}\cdot[q_0^{n+1}-q_1^{n+1}]
+\end{equation}
+
+The probability of blocking due to buffer full, $P_b=P_{2K}$,
+and $K=250$.
+The probability of acceptance of the M/E$_2$/1/K model, $P_a$, is given by
+\begin{equation}
+\label{equ:eq15}
+P_a=1-p_{2K}-p_{2K-1}
+\end{equation}
+
+Let $E[R]$ represents the mean of the RT,
+the sojourn time in the queue at steady state plus the service time,
+we can then obtain
+\begin{equation}
+\label{equ:eq16}
+E[R]=\frac{\sum_{n=0}^{K*2-2}np_n}{2\mu}+\frac{1}{\mu}
+\end{equation}
+
+We quantify the mean values of the response time, $E[R]$,
+which is validated by actual measured data of RT.
+The comparison results among the model outputs, the average measurements of RT,
+and the RT with the queue model of M/M/1/K,
+are shown in Table \ref{table:tab1}.
+As for the queue model of M/M/1/K, 
+the inter-arrival time is exponential, and time-to service observe
+the exponential distribution.
+Furthermore, the comprison among the model outputs when $r$ equals to 2, 3, 5, and 10, 
+for the M/E$_r$/1/250 model, are shown in Table \ref{table:tabr}, respectively.
+From tables \ref{table:tab1} and \ref{table:tabr},
+we can see that M/E$_2$/1/K model is appropriate to characterize
+the actual measurement.
+
+\begin{table*}[!t]
+\renewcommand{\arraystretch}{1.3}
+\caption{Comparison results of RT among measurements, M/E$_2$/1/K and M/M/1/K }
+\label{table:tab1}
+\centering
+\begin{tabular}{ c c c c c }
+\hline
+$\lambda$    & $\mu$        & measurement of        & RT of         & RT of     \\
+(reqs/s)     & (reqs/s)     & RT                & M/E$_2$/1/250 & M/M/1/250 \\
+             &              & (ms)              & (ms)          & (ms)      \\
+\hline
+350          & 390          & 20.2449           & 19.39         & 25        \\
+360          & 390          & 29.0386           & 25.64         & 33        \\
+370          & 390          & 38.8456           & 38.15         & 50        \\
+380          & 390          & 103.2922          & 75.5          & 99        \\
+\hline
+\end{tabular}
+\end{table*}
+
+
+\begin{table*}
+\renewcommand{\arraystretch}{1.3}
+\caption{RT of M/E$_r$/1/K when r equals to 3, 4, 5, and 10}
+\label{table:tabr}
+\centering
+\begin{tabular}{ c c c c c c c }
+\hline
+$\lambda$     & $\mu$     & RT of         & RT of             & RT of         & RT of         & RT of     \\
+(reqs/s)      & (reqs/s)  & M/E$_2$/1/250 & M/E$_3$/1/250     & M/E$_4$/1/250 & M/E$_5$/1/250 & M/E$_{10}$/1/250 \\
+              &           & (ms)          & (ms)              & (ms)          & (ms)          & (ms)      \\
+\hline                                                                                                   
+350           & 390       & 19.39         & 16.67           & 15.60         & 14.99         & 13.75        \\
+360           & 390       & 25.64         & 22.20           & 20.84         & 20.01         & 18.33        \\
+370           & 390       & 38.15         & 33.30           & 31.25         & 30.00         & 27.49        \\
+380           & 390       & 75.5          & 68.55          & 63.80          & 60.90          & 54.99        \\
+\hline
+\end{tabular}
+\end{table*}
+
+\section{Response time distribution} % III
+\label{sec:responseTimeDist}
+Woolet presented a response time computation technique,
+and the key idea works as follows:
+Assume that the response time distribution is of phase-type, i.e.,
+it corresponds to the absorption time distribution of
+a continuous-time Markov chain (CTMC) \cite{ChScience:SPWoolet1993PHD}.
+
+Let $\overline{R_n}$ denote the average
+$\overline{R_n}=\frac{1}{n}\sum_{m=1}^nR_m$ of $n$ independent
+and identically distributed random variables $R_m$,
+we can derive the probability density function of $\overline{R_n}$,
+mean and variance of $\overline{R_n}$.
+We can then base the decision of whether to trigger rejuvenation on
+the quantiles of the distribution of $\overline{R_n}$.
+
+In this section,
+we first calculate the RT distribution, $F_R(t)$,
+and then calculate the mean and variance of $F_R(t)$.
+Secondly, we also calculate the PDF (probability density function),
+mean and variance of $\overline{R_n}$.
+
+\subsection{CDF, mean and variance of R} % 3.1
+\label{subsec:CDFofR}
+We use tagged job approach to calculate the response time distribution of
+R of M/E$_2$/1/K \cite{ChScience:KSTrivedi2001PS},
+which can be denoted as the formula as follows:
+\begin{equation}
+\label{equ:eq17}
+F_R(t)=\sum_{i=0}^{2K-2}p_i\cdot \left[ 1-\sum_{j=0}^{i+1}\frac{(2\mu t)^je^{2\mu t}}{j!} \right]
+\end{equation}
+
+The response time distribution of R can be denoted as the absorption time
+distribution of a continuous-time Markov chain (CTMC), the state diagram
+of the CTMC is given in Figure \ref{fig:responseTimeDist}.
+
+\begin{figure*}[htb]
+\centering
+\includegraphics[width=0.9\textwidth]{responseTimeDist}
+\caption{The state diagram of time to absorption of R}
+\label{fig:responseTimeDist}
+\end{figure*}
+
+Differential equations for this CTMC yields
+\begin{equation}
+\label{equ:eq18}
+  \begin{cases}
+    \frac{\du\pi_{T_1}(t)}{\du t}=-2\mu\cdot\pi_{T_1}(t)~~(i=1) \\
+    \frac{\du\pi_{T_2}(t)}{\du t}=-2\mu\cdot\pi_{T_2}(t)+2\mu\cdot\pi_{T_1}(t)~~(i=2) \\
+    \frac{\du\pi_{T_i}(t)}{\du t}=-2\mu\cdot\pi_{T_i}(t)+2\mu\cdot(1-q_{i-3})\cdot\pi_{T_{i-1}}(t) \\
+    ~~~~~~~~(3\leq i\leq 2K) \\
+    \frac{\du\pi_{T_R}(t)}{\du t}=\sum_{i=2}^{2K}[2\mu\cdot q_{i-2}\cdot \pi_R(t)]
+  \end{cases}
+\end{equation}
+where we have assumed that the initial state is $T_1$
+so that $\pi_{T_1}(0)=1$, and $\pi_{T_i}(0)=0=\pi_{T_R}(0)$,
+using the Laplace transform, we derive
+\begin{equation}
+\label{equ:eq19}
+s\overline{\pi_R(s)}=\sum_{i=2}^{2K}2\mu q_{i-2}\pi_{T_i}(s)
+\end{equation}
+where,
+\begin{equation}
+\label{equ:eq20}
+  \begin{split}
+    q_n=&\frac{p_n}{p_n+p_{n+1}+\ldots+p_{2k-2}} \\
+       =&\frac{q_0^{n+1}-q_1^{n+1}}{\frac{q_0^{n+1}-q_0^{2K}}{1-q_0}-\frac{q_1^{n+1}-q_1^{2K}}{1-q_1}}
+  \end{split}
+\end{equation}
+
+By solving formula (\ref{equ:eq19}) and (\ref{equ:eq20}), we obtain
+\begin{equation}
+\label{equ:eq21}
+s\overline{\pi_R(s)}=\sum_{i=2}^{2K}2\mu q_{i-2}\pi_{T_i}(s)=\sum_{i=0}^{2K-2}P_i\frac{(2\mu)^{i+2}}{(s+2\mu)^{i+2}}
+\end{equation}
+
+From formula (\ref{equ:eq22}), we obtain $E(R)$,
+\begin{equation}
+\label{equ:eq22}
+E(R)=-\frac{\du\overline{f_R}(s)}{\du s}|_{s=0}=\sum_{i=0}^{2K-2}P_i\cdot\frac{i+1}{2\mu}
+\end{equation}
+
+We obtain $\sigma^2$, the variance of $R$,
+\begin{equation}
+\label{equ:eq23}
+  \begin{split}
+    \sigma^2=&E(R^2)-(E(R))^2 \\
+            =&\sum_{i=0}^{2K-2}(i+1)(i+2)\frac{1}{4\mu^2}-\left[ \sum_{i=0}^{2K-2}p_i\cdot(i+1)\frac{1}{2\mu} \right]^2
+  \end{split}
+\end{equation}
+
+\subsection{CDF, mean and variance of $\overline{R_n}$} % 3.2
+\label{subsec:CDFofRn}
+Let $\overline{R_n}=\sum_{m=1}^nR_m/n$,  
+%%\begin{equation}
+%%\label{equ:eq24}
+%%\overline{R_n}=\sum_{m=1}^nY_m
+%%\end{equation}
+here, $R_m/n,~m=1, 2, \dots,n$ , are independent and identically distributed
+random variables, and
+each individual summand $R_m/n$ is the response time of a job in an
+M/E$_2$/1/K. 
+let $E(\overline{R_n})$ denote the expected value of $\overline{R_n}$,
+thus, we can derive
+\begin{equation}
+\label{equ:eq25}
+E(\overline{R_n})=\frac{1}{n}\cdot n\cdot E(R_m)=E(R)
+\end{equation}
+
+Let $Var(\overline{R_n})$ denote the variance of $\overline{R_n}$,
+$\sigma^2$ denote the variance of $R_m$, we can derive
+\begin{equation}
+\label{equ:eq26}
+Var(\overline{R_n})=Var\left( \frac{R_1+R_2+\ldots+R_n}{n} \right)=\frac{\sigma^2}{n}
+\end{equation}
+
+To find the time to absorption of $\overline{R_n}$,
+we begin by multiplying all transition rates
+in Figure \ref{fig:responseTimeDist} by $n$ and get a Markov chain
+in which the distribution of the time to absorption is identical to
+the distribution of each individual $R_m/n$.
+Because all transition times in a Markov chain are exponential and 
+because dividing an exponentially distributed random variable with
+hazard rate $z$ by some constant $r$ yields an exponentially distributed
+random variable with hazard rate $r \cdot z$.
+Therefore, $\overline{R_n}=\sum_{m=1}^nY_m$ can be represented as time
+to absorption in the Markov chain derived by concatenating $n$ such
+Markov chains, fusing state $F_m$ of the $m$th sub-chain and state
+$T_{1,m+1}$ of the $(m+1)$st sub-chain into state $F_n$
+of the resulting Markov chain.
+This is shown in Figure \ref{fig:meanOfRT}.
+We use SHARPE numerically calculate the RT distribution of $\overline{R_n}$
+when $n$ equals 1, 5, 10, 15 and $\rho=$350/390 respectively,
+as is shown in Figure \ref{fig:RTdist}.
+
+\begin{figure}[htb]
+\centering
+\includegraphics[width=0.45\textwidth]{meanOfRT}
+\caption{The state diagram of time to absorption of $\overline{R_n}$}
+\label{fig:meanOfRT}
+\end{figure}
+
+\begin{figure}[htb]
+\centering
+\includegraphics[width=0.45\textwidth]{rtProb}
+\caption{RT distribution of $\overline{R_n}$ at different $n$}
+\label{fig:RTdist}
+\end{figure}
+
+\section{Simulation results for rejuvenation algorithms} % IV
+\label{sec:simResults}
+Based on the analytical results discussed
+in section \ref{sec:responseTimeDist},
+we first employ the SRAA algorithm presented by Alberto Avritzer et.al.
+Secondly, we develop the distributed based rejuvenation algorithm(DBRA).
+Finally, we compare the DBRA with the SRAA.
+
+
+we employ the SRAA developed by Avritzer et.al,
+the algorithm first track the statistical deviation of RT,
+and then assure the performance measured by RT via
+software rejuvenation \cite{ChScience:AAvritzer2006DSN}.
+The algorithm called static software rejuvenation with averaging
+(SRAA), where the observed values of RT are averaged over a fixed
+sample size.
+SRAA tries to verify that the distribution of RT
+has shifted by a specific amount.
+
+We evaluate the rejuvenation algorithm SRAA and DBRA
+by running the simulation model of queueing model M/E$_2$/1/K.
+We ran each simulation for 2500,000 transactions divided into
+five replications of 500,000 transactions each.
+In each simulation experiment, the value of $\mu_X$ and $\sigma_X$
+when  $\rho=$350/390, 360/390, 370/390, and 380/390 are used respectively.
+Average RT and fractions of transactions lost are shown as functions
+of the offered load ($\rho=\lambda/\mu$).
+We kept the value of the product of sample size, $n$, number of buckets,
+$K$, and bucket depth, $D$, constant,
+and refer to this as $n\cdot K\cdot D$.
+
+\subsection{SRAA, $n\cdot K\cdot D=300$} % 4.1
+\label{subsec:SRAAnKD300}
+Figure \ref{fig:SRAA:a} presents the RT results for SRAA,
+with $n\cdot K\cdot D=300$.
+We performed experiments setting
+$(n, K, D)=(1, 10, 30), (2, 10, 15), (3, 10, 10), (6, 10, 5)$.
+We do not see a clear dichotomy of the RTs for these four settings.
+However, when we examine Figure \ref{fig:SRAA:b},
+we see clearly that the average fraction loss is different,
+when $(n, K, D)=(2, 10, 15)$, it incurs a higher transaction loss, while
+when $(n, K, D)=(6, 10, 5)$, the transaction loss is lowest at both
+lower load and higher load.
+Here, we observe the sample size $n$ has a significant effect on
+the average transaction loss, since frequently sampled RT will incur
+software rejuvenation times more than that of infrequently sampled RT.
+
+\begin{figure}[htb]
+\centering
+\subfigure[Response time results, SRAA, $n\cdot K\cdot D=300$]{
+           \includegraphics[width=0.45\textwidth]{SRAAa}
+           \label{fig:SRAA:a}
+          }
+%\hfill
+\\
+\subfigure[Fraction of transaction loss results, SRAA, $n\cdot K\cdot D=300$]{
+           \includegraphics[width=0.45\textwidth]{SRAAb}
+           \label{fig:SRAA:b}
+          }
+\caption{Response time and transaction loss results when $n\cdot K\cdot D=300$}
+\label{fig:SRAA}
+\end{figure}
+
+Also, we assume the rejuvenation time is 2 seconds in our simulation model,
+from simulation results we obtain that the rejuvenation times
+for setting $(6, 10, 5)$ is from 60 times to 110 times,
+which is least compared with other three cases.
+From Figure \ref{fig:SRAA:a} we can see the average fraction loss
+decrease when $\rho=380/390$, since the analytical average RT,
+$\mu_X$ used in our rejuvenation algorithm, is 76.92ms,
+while the simulation average RT without rejuvenation is 65.38ms,
+so that we can see this decreasing average
+fraction loss when $\rho=380/390$.
+
+\begin{figure}[htb]
+\centering
+\subfigure[RT when sample size doubled]{
+           \includegraphics[width=0.45\textwidth]{sizeDoubleda}
+           \label{fig:sizeDoubled:a}
+          }
+%\hfil
+\\
+\subfigure[Average Fraction Loss when sample size doubled]{
+           \includegraphics[width=0.45\textwidth]{sizeDoubledb}
+           \label{fig:sizeDoubled:b}
+          }
+\caption{Response time and transaction loss results when $n\cdot K\cdot D=600$}
+\label{fig:sizeDoubled}
+\end{figure}
+
+\subsection{SRAA, sample size doubled} % 4.2
+\label{subsec:SRAAsampleDoubled}
+Figure \ref{fig:sizeDoubled:a} presents RT results for SRAA,
+with $n\cdot K\cdot D=600$.
+We set $(n, K, D)=(2, 10, 30), (4, 10, 15), (6, 10, 10), (12, 10, 5)$,
+by doubling the sample size of the experimental settings
+from part \ref{subsec:SRAAnKD300} of section \ref{sec:simResults}.
+From Figure \ref{fig:sizeDoubled:a} we see the similar RT results
+for these four settings, while from Figure \ref{fig:sizeDoubled:b},
+we see clearly average transaction loss different for these four settings,
+we can see, $(n, K, D)=(4, 10, 15)$ incur a higher transaction loss
+when the sample size is 2, while when $(n, K, D)=(12, 10, 5)$,
+the average transaction loss is lowest.
+
+Doubling the values of sample size has a negative impact on RT.
+For example, when $\rho=350/390$ and $(n, K, D)=(1, 10, 30)$,
+the average RT for SRAA is 18.16388ms, while for $(n, K, D)=(2, 10, 30)$,
+the average RT is 19.2835ms;
+when $\rho=380/390$ and $(n, K, D)=(1, 10, 30)$,
+the average RT for SRAA is 42.45974ms, while for $(n, K, D)=(2, 10, 30)$,
+the average RT is 47.878ms.
+The observed RTs are longer because the lager sample size means the
+rejuvenation is triggered later,
+as it takes longer to collect a larger sample.
+
+\subsection{Comparing DBRA, SRAA } % 4.3
+\label{subsec:comparing}
+We develop the distribution based rejuvenation algorithm(DBRA) as shown in Algorithm \ref{alg:DBRA}.
+It directly employ the mean of RT distribution to control the software rejuvenation
+instead of trying the bucket deviation using the bucket depth, the bucket number,
+and the observed sample size as the control parameters.
+The algorithm works as follows:
+TM denote the target value when the designed response time distribution of
+$\overline{R_n}$ confidence interval reached.
+
+\begin{algorithm}
+%\begin{figure}[!h]
+\caption{Distribution based rejuvenation algorithm}
+\label{alg:DBRA}
+\begin{algorithmic}[1]
+\Function{DBRA}{d, n, TM}
+    \State $u\gets 0$
+    \State $d\gets 0$
+    \While{n additional observations available}
+        \State $u\gets u+1$
+        \State $\overline{X_u}\gets \frac{1}{n}\sum^{un}_{(u-1)n+1}X_t$
+        \If{$\overline{X_u}>TM$}
+            \State $d\gets d+1$
+        \Else
+            \State $d\gets d-1$
+        \EndIf
+        \If{$d > D$}
+            \State rejuvenation\_route()
+            \State $d\gets 0$
+        \EndIf
+        \If{$d < 0$}
+            \State $d\gets 0$;
+        \EndIf
+    \EndWhile
+\EndFunction
+\end{algorithmic}
+%\end{figure}
+\end{algorithm}
+
+Figure \ref{fig:mRTd20:a} presents RT results for DBRA
+with fixed depth $D=20$. We change the value of $n=1,5,10,15$, and
+the parameter k is set implicitedly to 1.
+Figure \ref{fig:TlossD20:b} presents the average transaction loss for these four
+settings,
+and it is clearly that the average transaction loss different for these four settings,
+we can see, $n=5$  incur a higher transaction loss
+, while when $n=15$,
+the average transaction loss is lowest at the low arrival rate.
+This can be explained that the larger sample size means the rejuvenation
+trigger later, as it takes longer time to collect a larger sample,
+so that the rejuvenation times is less compared with other settings.
+
+\begin{figure}[htb]
+\centering
+\subfigure[Average RT when Depth fixed at $20$]{
+           \includegraphics[width=0.45\textwidth]{mRTd=20}
+          \label{fig:mRTd20:a}
+          }
+%\hfil
+\\
+\subfigure[Average Loss when Depth fixed at $20$]{
+           \includegraphics[width=0.45\textwidth]{TlossD=20}
+           \label{fig:TlossD20:b}
+          }
+\caption{Average RT and Loss for DBRA}
+\end{figure}
+
+Figure \ref{fig:mRTd50:a} presents RT results for DBRA with fixed depth $D=50$.
+Figure \ref{fig:TlossD50:b} presents the average transaction loss for these four settings.
+Figure \ref{fig:TlossD20:b} and Figure \ref{fig:TlossD50:b} give the average transaction
+loss when bucket depth equals $D=20$ and $D=50$ respectively,
+and it is clearly to see that the average transaction loss of $D=50$ is lower than
+that of $D=20$, since the larger bucket depth can allow the larger deviation.
+We compare the DBRA with SRAA, and we set the $n\cdot K\cdot D=300$,
+From Figure \ref{fig:SRAA:a} and Figure \ref{fig:mRTd20:a},
+we see that the DBRA and SRAA guarantee the similar average RT at different workload level,
+From Figure \ref{fig:SRAA:b}we see that the lowest average transaction loss of SRAA of (k=10,D=5,n=6)
+is 0.044, and the highest average transaction loss of SRAA of (k=10,D=5,n=6) is 0.086.
+While from Figure \ref{fig:TlossD20:b} we see that the lowest average transaction loss of DBRA
+is 0.031, and the highest of average transaction loss of DBRA is 0.062 at $n=15$.
+Furthermore, we see clearly the average transaction loss of DBRA is much lower than that of SRAA
+at different n value.
+
+\begin{figure}[htb]
+\centering
+\subfigure[Average RT when Depth fixed at $50$]{
+           \includegraphics[width=0.45\textwidth]{mRTd=50}
+          \label{fig:mRTd50:a}
+          }
+%\hfil
+\\
+\subfigure[Average Loss when Depth fixed at $50$]{
+           \includegraphics[width=0.45\textwidth]{TlossD=50}
+           \label{fig:TlossD50:b}
+          }
+\caption{Average RT and Loss for DBRA at depth=50}
+\end{figure}
+
+We obtain the average RT and transaction loss if we fix n value and change D depth value.
+Here we change D value from $20$ to $200$, and the n fixed value settings are $1$, $5$, and $10$
+respectively.
+Figure \ref{fig:mRTn1:a} and \ref{fig:Tlossn1:b} give the average RT and transaction loss
+when n equals $1$.
+Figure \ref{fig:mRTn5:a} and \ref{fig:Tlossn5:b} give the average RT and transaction loss
+when we set $n=5$.
+Figure \ref{fig:mRTn10:a} and \ref{fig:Tlossn10:b} give the average RT and transaction loss
+when we set $n=10$ and the same D value shown in Figure \ref{fig:Tlossn5:b}.
+It is clearly to see that the $n=10$ setting give the better performance than the $n=5$ setting
+Since that the larger sample size shows the less rejuvenation times, and thus incur the smaller
+transaction loss overhead.
+From these Figures we see that the average transaction losses are lower than SRAA at the similar setting.
+
+\begin{figure}[htb]
+\centering
+\subfigure[Average RT when sample size fixed at $1$]{
+           \includegraphics[width=0.45\textwidth]{mRTn=1}
+          \label{fig:mRTn1:a}
+          }
+%\hfil
+\\
+\subfigure[Average Loss when sample size fixed at $1$]{
+           \includegraphics[width=0.45\textwidth]{Tlossn=1}
+           \label{fig:Tlossn1:b}
+          }
+\caption{Average RT and Loss for DBRA  when $n=1$}
+\end{figure}
+
+\begin{figure}[htb]
+\centering
+\subfigure[Average RT when sample size fixed at $5$]{
+           \includegraphics[width=0.45\textwidth]{mRTn=5}
+          \label{fig:mRTn5:a}
+          }
+%\hfil
+\\
+\subfigure[Average Loss when sample size fixed at $5$]{
+           \includegraphics[width=0.45\textwidth]{Tlossn=5}
+           \label{fig:Tlossn5:b}
+          }
+\caption{Average RT and Loss for DBRA when  $n=5$}
+\end{figure}
+
+\begin{figure}[htb]
+\centering
+\subfigure[Average RT when sample size fixed at $10$]{
+           \includegraphics[width=0.45\textwidth]{mRTn=10}
+          \label{fig:mRTn10:a}
+          }
+%\hfil
+\\
+\subfigure[Average Loss when sample size fixed at $10$]{
+           \includegraphics[width=0.45\textwidth]{Tlossn=10}
+           \label{fig:Tlossn10:b}
+          }
+\caption{Average RT and Loss for DBRA at $n=10$}
+\end{figure}
+
+\section{Conclusion}
+\label{sec:conclusion}
+In this paper, a queueing model of M/E$_2$/1/K is built to analyze the
+response time of the aging of the Apache web server,
+and is validated by actual measured data.
+Firstly, we obtain the RT distribution of of M/E$_2$/1/ K model,
+$F_R(t)$, the mean and variance of $F_R(t)$.
+Secondly, we obtain the distribution of the mean of RT,
+$F_{\overline{R_n}}$,
+the mean and variance of $\overline{R_n}$.
+We also numerically calculated RT distribution of $\overline{R_n}$
+using SHARPE.
+Thirdly, we proposed the distribution based rejuvenation algorithm to
+control the rejuvenation, and compare with the static software rejuvenation
+with average algorithm(SRAA) presented by Alberto Avizer et.al.
+Finally,the software rejuvenation algorithm of DBRA, and SRAA are
+studied by simulation, and the performance of these two algorithms are
+compared, results show that the performance of DBRA are
+advantage over the SRAA.
+We have found the optimum performance can be obtained by directly using
+the defined confidence interval of RT distribution plus the control parameters of sample size,
+or bucket depth.
+
+% use section* for acknowledgement
+\ifCLASSOPTIONcompsoc
+  % The Computer Society usually uses the plural form
+  \section*{Acknowledgments}
+\else
+  % regular IEEE prefers the singular form
+  \section*{Acknowledgment}
+\fi
+This work is supported by the National Natural Science Foundation of
+China under Grant No. 60873036,
+the National Research Foundation for the Doctoral Program of
+Higher Education of China No.20070217051,
+the fundamental research funds for the Central Universities
+(award number HEUCF100601, HEUCFT1007).
+This research was also supported in part by the NASA Office of Safety
+and Mission Assurance (OSMA) Software Assurance Research Program
+(SARP) under a JPL subcontract \# 1440119.
+
+% Can use something like this to put references on a page
+% by themselves when using endfloat and the captionsoff option.
+\ifCLASSOPTIONcaptionsoff
+  \newpage
+\fi
+
+\bibliographystyle{IEEEtran}
+\bibliography{IEEEabrv,references}
+
+\end{document}

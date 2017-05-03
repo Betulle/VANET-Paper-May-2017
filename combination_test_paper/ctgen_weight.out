@@ -1,0 +1,13 @@
+\BOOKMARK [1][-]{section.1}{Introduction}{}% 1
+\BOOKMARK [1][-]{section.2}{Related Work}{}% 2
+\BOOKMARK [1][-]{section.3}{The weighted combinatorial coverage paradigm}{}% 3
+\BOOKMARK [2][-]{subsection.3.1}{Motivation}{section.3}% 4
+\BOOKMARK [2][-]{subsection.3.2}{Definition for weighted combinatorial coverage rate}{section.3}% 5
+\BOOKMARK [1][-]{section.4}{Algorithm for weighted combinatorial test case selection}{}% 6
+\BOOKMARK [2][-]{subsection.4.1}{algorithm}{section.4}% 7
+\BOOKMARK [2][-]{subsection.4.2}{Theorem for Algorithm1}{section.4}% 8
+\BOOKMARK [1][-]{section.5}{Experiment}{}% 9
+\BOOKMARK [2][-]{subsection.5.1}{Comparison Metric}{section.5}% 10
+\BOOKMARK [2][-]{subsection.5.2}{Results}{section.5}% 11
+\BOOKMARK [1][-]{section.6}{conclusion}{}% 12
+\BOOKMARK [1][-]{section*.5}{References}{}% 13

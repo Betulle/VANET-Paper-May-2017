@@ -1,0 +1,16 @@
+./a1_picture/ 存放的是算法一所得到的所有picture;其中
+	./a1_picture/good.eps对应是ct.pdf中的Algorithm 1:Good Distribution，
+	./a1_picture/good_and_bad.eps对应的ct.pdf中的Algorithm 1:Good and Bad，
+	./a1_picture/combination_coverage_good.eps对应的Algorithm 1:Combination coverage good，
+	./a1_picture/i_ways_combinatio_coverage_good.eps对应的是Algorithm 1:i ways combinatio coverage good，
+	./a1_picture/combination_coverage_good_and_bad.eps对应的是Algorithm 1:combination coverage good and bad
+
+./a2_1_picture/ 存放的是算法二中第一种权值更新方式得到的所有picture；其中
+	./a2_1_picture/中所有的图片的命名与ct.pdf中插入图片的命名相同
+
+./a2_2_picture/ 存放的是算法二中第二种权值更新方式得到的所有picture；其中
+	./a2_2_picture/中所有的图片的命名与ct.pdf中插入图片的命名相同
+
+./a2_3_picture/ 存放的是pair-wise得到的所有picture；其中
+	./a2_3_picture/中所有的图片的命名与ct.pdf中插入图片的命名相同
+

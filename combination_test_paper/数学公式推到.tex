@@ -1,0 +1,397 @@
+\documentclass[10pt,journal,letterpaper,compsoc]{IEEEtran}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage[ruled]{algorithm2e}
+\renewcommand{\algorithmcfname}{ALGORITHM}
+\SetAlFnt{\small}
+\SetAlCapFnt{\small}
+\SetAlCapNameFnt{\small}
+\SetAlCapHSkip{0pt}
+\IncMargin{-\parindent}
+
+%\usepackage{mathbbold}
+\usepackage{amsfonts}
+
+%---------------------------usepackages----------------------------
+\usepackage[width=.45\textwidth]{caption}
+\usepackage{cite}
+\usepackage[dvips]{graphicx}
+\usepackage{algpseudocode}
+\usepackage{array}
+\usepackage{float}
+\usepackage[tight,footnotesize]{subfigure}
+\usepackage{booktabs}
+\usepackage{url}
+\usepackage{multirow}
+\newcommand\du{\mathrm{d}}
+\usepackage[cmex10]{amsmath}
+\usepackage{amssymb}
+\usepackage{mathrsfs}
+\usepackage{CJKutf8}
+\usepackage[margin=2cm]{geometry}
+\usepackage[utf8]{inputenc}
+
+%---------------------------THEOREMs------------------------------
+\newtheorem{thm}{Theorem}[section]
+
+\newtheorem{definition}{Definition}
+\newtheorem{lemma}[thm]{Lemma}
+\newtheorem{claim}[thm]{Claim}
+\newtheorem{corol}[thm]{Corollary}
+\newtheorem{propos}[thm]{Proposition}
+\newtheorem{rema}{Remark}[section]
+\def\bde{\begin{definition}}
+\def\ede{\end{definition}}
+\def\bp{\begin{propos}}
+\def\ep{\end{propos}}
+\def\bt{\begin{thm}}
+\def\et{\end{thm}}
+\def\bco{\begin{corol}}
+\def\eco{\end{corol}}
+\def\bl{\begin{lemma}}
+\def\el{\end{lemma}}
+\def\br{\begin{rema}}
+\def\er{\end{rema}}
+\def\be{\begin{equation}}
+\def\ee{\end{equation}}
+\def\ba{\begin{array}}
+\def\ea{\end{array}}
+\def\bena{\begin{eqnarray}}
+\def\eena{\end{eqnarray}}
+
+%-------------------------------Letter ab.------------------------
+\def\P{{\mathbb P}}
+\def\E{{\mathbb E}}
+\def\R{{\mathbb R}}
+\def\Z{{\mathbb Z}}
+\def\N{{\mathbb N}}
+\def\Q{{\mathbb Q}}
+%\def\1{\mathbbold{1}}
+\def\1{I}
+%--------------------
+\def\fA{{\cal A}}
+\def\fB{{\cal B}}
+\def\fC{{\cal C}}
+\def\fD{{\cal D}}
+\def\fE{{\mathscr E}}
+\def\fF{{\mathscr F}}
+\def\fG{{\mathscr G}}
+\def\fK{{\mathscr K}}
+\def\fL{{\mathscr L}}
+%--------------------
+\def\ze{{\zeta}}
+\def\nb{{\nonnumber}}
+\def\lb{{\label}}
+\def\la{{\lambda}}\def\La{{\Lambda}}
+\def\ga{{\gamma}}\def\Ga{{\Gamma}}
+\def\a{{\alpha}}
+\def\d{{\delta}}\def\D{{\Delta}}
+\def\o{{\omega}}\def\O{{\Omega}}
+\def\var{\hb{Var}}
+
+%------------------------------OTHERS------------------------------------
+\def\QED{\hfill$\square$\vskip 3mm}
+\def\qed{\vskip -22pt \QED}
+\def\Dp{\displaystyle}
+\def\Df{\Dp\frac}
+\def\hb{\hbox}
+\def\({\left(}
+\def\){\right)}
+\def\[{\left[}
+\def\]{\right]}
+\linespread{1}
+ \date{}
+\begin{document}
+%\large
+\begin{CJK}{UTF8}{gkai}
+
+\title{数学公式推导}
+\author{张磊}
+\maketitle
+\section{Algorithm 1}
+ \begin{thm}
+Let $B_i$ represent i\_ways faults, and $M_i$ represent the number of i\_ways combinations.
+Let $b_i(n)$ denote the number of faults for i\_ways combination when the $n$ test cases finished testing, 
+and  $m_i(n)$ denote the used number of i\_ways combinations when the $n$ test cases finished testing.
+The counting process $b_i(n),m_i(n)$ satisfy the following :
+$\forall\varepsilon>0$,  
+\begin{equation}  
+\P(|\frac{b_i(n)}{m_i(n)} - \frac{B_i}{M_i}| \le \varepsilon )
+        \geq {1-\frac{1}{m_i(n)\varepsilon}}
+\end{equation}
+\end{thm}
+
+\begin{proof}
+When $n\rightarrow \infty$, it is clear that $ m_i(n)\rightarrow M_i $, and $ b_i(n)\sim \binom{m_i(n)}
+{\frac{B_i}{M_i}} $, Chebyshev's inequality gives 
+
+$ 1 \geq P \{\vert \frac{b_i(n)}{m_i(n)} - 
+\frac{B_i}{M_i}\vert < \varepsilon \}
+\geq 1-\frac{m_i(n)\cdot \frac{B_i}{M_i} \cdot  (1-\frac{B_i}{M_i})}{m_i(n)^2\cdot \varepsilon^2} $
+\\Moreover,
+$1-\frac{m_i(n)\cdot \frac{B_i}{M_i} \cdot  (1-\frac{B_i}{M_i})}{m_i(n)^2\cdot \varepsilon^2}
+\geq 1-\frac{1}{m_i(n) \cdot \varepsilon} $, so that the proof holds. 
+\end{proof}
+
+\begin{thm}
+Assume that $b_i^{m_1}(n)$  and $b_i^{m_2}(n)$ are the total number of found faults under the same optimized weight
+when the number of $n$ test cases completed, and the parameters $m$ equal  
+$m_1,m_2(m_1<m_2)$. Then, 
+\begin{equation}  
+E(b_i^{m_1}(n)) \leq E(b_i^{m_2}(n)) 
+\end{equation}
+\end{thm}
+
+\begin{proof}
+The Mathematical Induction (MI) is used here. 
+\begin{enumerate}
+\item when $n=1$, the best test case is selected from the number of $m_2$ test cases,
+    and the number of detected bugs is $E(b_i^{m_2}(1))$. This process can viewed as
+    the $m_1$ test cases is firstly selected, in which the best test case is selceted to  
+    detect  $E(b_i^{m_1}(1))$  bugs. Furthermore, the  $m_2-m_1$ test cases are used, 
+    in which the best test case is selected to detect $E(b_i^{(m_2-m_1)}(1))$ bugs. 
+    Since $E(b_i^{m_2}(1))=E(max\{b_i^{m_1}(1),b_i^{(m_2-m_1)}(1)\})$, so it is clear that
+    $E(b_i^{m_1}(1)) < E(b_i^{m_2}(1))$
+\item when $n\leq k$, $E(b_i^{m_1}(k)) \leq E(b_i^{m_2}(k))$. If $n=k+1$,
+    the negation approach is used to prove $E(b_i^{m_1}(k+1)) \leq E(b_i^{m_2}(k+1))$.
+\item We first assume that $E(b_i^{m_1}(k+1)) > E(b_i^{m_2}(k+1))$, when $m=m_1$,
+    the detected faults is $X_k$ and $Y_k$ using the $k^{th}$ test case. 
+    Then, $b_i^{m_1}(k)=\sum_{n=1}^{k}X_n$, and $b_i^{m_2}(k)=\sum_{n=1}^{k}Y_n$.
+    We assume that when $m=m^1$ and $m=m^2$，the $(k+1)^{th}$ selected best test case detect the number of expected bugs,
+    which are $E(X(k+1)),E(Y(k+1))$. 
+    \begin{enumerate}
+    \item Since we assume $E(b_i^{m_1}(k+1)) > E(b_i^{m_2}(k+1))$，i.e., 
+          $E(b_i^{m_1}(k))+E(X(k+1)) > E(b_i^{m_2}(k))+E(Y(k+1))$. 
+          We can assume that two virtulized selection processes exist in the $(k+1)^{th}$ selected best test case detecting the number of expected bugs $E(X(k+1))$.
+          First we select test cases from $m^0$ and then $ m^1-m^0 $. Accordingly, the number of detected expected bugs are $E(X^{m_0}(k+1))$ and $E(X^{(m_1-m^1_0)}(k+1))$, respectively.
+          In which, $E(X(k+1))=E(max \{X^{m^1_0}(k+1)),X^{(m_1-m^1_0)}(k+1))\} )$. 
+          When $m=m^2$, we use the same approach to select test cases and then detec bugs. So that, 
+          the number of detected expected bugs are $E(Y^{m_0}(k+1))$ and $E(Y^{(m_2-m_0)}(k+1))$, respectively.
+          In which, 
+          $E(Y(k+1))=E(max \{Y^{m^2_0}(k+1),Y^{(m_2-m^2_0)}(k+1))\})$ 
+    \item We know from the sampling theory there exist a $m_0$, which make   
+          $E(b_i^{m_1}(k))+X(k+1) = E(b_i^{m_2}(k))+Y(k+1)$. Therefore, the second selection process during the $k_{th}$ are from $m^1-m^0$,$m^2-m^0$.
+          Since $m^1-m^0<m^2-m^0$, 
+          so that $X^{(m_2-m^2_0)}(k+1)) \leq Y^{(m_2-m^2_0)}(k+1))$. And furthermore, 
+           $E(X(k+1)) =E(max \{X^{m^1_0}(k+1)),X^{(m_1-m^1_0)}(k+1))\} )$,
+           $E(Y(k+1)) =E(max \{Y^{m^1_0}(k+1)),Y^{(m_1-m^1_0)}(k+1))\} )$. And Because, 
+           $E(b_i^{m_1}(k))+X^{m_0}(k+1)) = E(b_i^{m_2}(k))+Y^{m_0}(k+1))$, i.e.,
+           $E(b_i^{m_1}(k)) = E(b_i^{m_2}(k))+ (Y^{m_0}(k+1)) - X^{m_0}(k+1)))$.
+           And also, 
+           $(E(Y(k+1)) - E(X(k+1)))
+           \geq (Y^{m_0}(k+1)) - X^{m_0}(k+1)))$
+          Thus, $E(b_i^{m_1}(k)) \leq  E(b_i^{m_2}(k))+(Y(k+1) - X(k+1))$
+          i.e., $E(b_i^{m_1}(k))+ X(k+1)) \leq E(b_i^{m_2}(k))+Y(k+1))$
+          i.e., $ E(b_i^{m_1}(k+1)) \leq E(b_i^{m_2}(k+1))$
+          This will be paradox with the assumption  $E(b_i^{m_1}(k+1)) > E(b_i^{m_2}(k+1))$. Therefore, the proof holds true. 
+    \end{enumerate}
+\end{enumerate}
+\end{proof}
+The meaning of theorem 2 ：The algorithm 1 find the expected faults after execute the same test case by applying parameter $m^1$,$m^2$（$m^1<m^2$).
+The larger value of $m$, the more effective for the detection.
+
+\section{Algorithm 2}
+The theories of algorithm 1 apply the alogorithm 2 and 3. 
+The updating weight 1：
+\begin{thm}
+\begin{equation} 
+\rho _i(k+1)= \frac{\rho_i(k)+\frac {b_i(k+1)}{m_i(k+1)}}{2} \rightarrow  \frac{B_i}{M_i}
+\end{equation}
+\end{thm}
+
+\begin{proof}
+$\rho_i(1)= \frac{\rho_i(0)+\frac {b_i(1)}{m_i(1)}}{2}
+=\frac{1}{2}\rho_i(0)+\frac{1}{2}\frac{b_i(1)}{m_i(1)}$
+\\$\rho_i(2)= \frac{\rho_i(1)+\frac {b_i(2)}{m_i(2)}}{2}
+=\frac{1}{2^2}\rho_i(0)+\frac{1}{2^2}\frac{b_i(1)}{m_i(1)}
++\frac{1}{2}\frac{b_i(2)}{m_i(2)}$.
+And also, we obtain  $\rho_i(n)= \frac{\rho_i(n-1)+\frac {b_i(n)}{m_i(n)}}{2}
+=\frac{1}{2^n}\rho_i(0)+\frac{1}{2^n}\frac{b_i(1)}{m_i(1)}
++\frac{1}{2^{n-1}}\frac{b_i(2)}{m_i(2)}+……+\frac{1}{2}\frac{b_i(n)}{m_i(n)}$.
+From the following lemma we conclude $\rho_i(n)\rightarrow\frac{B_i}{M_i}$
+\end{proof}
+
+\begin{lemma}
+For sequences $P_1,P_2.....P_n$
+satisfying $ \lim \frac{P_n}{P_1+P_2+......+P_n} \rightarrow 0 $.
+If $\lim a_n \rightarrow a$,
+then $\lim \frac{a_n \cdot P_1+a_{n-1} \cdot P_2+...+a_1\cdot P_n}{P_1+P_2+......+P_n}=a$
+\end{lemma}
+
+\begin{proof}
+Because $\lim a_n \rightarrow a$
+so that $\forall \varepsilon,\exists N_1$，
+for all $n>N_1$, there exsits an equation 
+$|a_n-a|<\frac{\varepsilon}{3}$,
+and also $\{a_n\}$ is bounded, there $\exists M>0$, which makes $|a_n|<M$.
+For a sequence $\{P_1,P_2.....P_n\}$，
+satisfying $\lim \frac{P_n}{P_1+P_2+......+P_n} \rightarrow 0$.
+For all the above $\varepsilon$，there exists $N_2$，which make when $n>N_2$,
+$|\frac{P_n}{P_1+P_2+......+P_n}-0| \leq \frac{\varepsilon}{3MN_1}$,
+pick up $N_3>max\{N_1,N_2\}$,
+and make three segments for $n$, so that we have 
+\begin{eqnarray*}
+| \frac{a_n P_1+a_{n-1} P_2+...+a_1 P_n}{P_1+P_2+......+P_n}-a| \\
+=( \frac{|a_1-a| P_n+|a_2-a| P_{n-2}+...+|a_n-a| P_1}{P_1+P_2+......+P_n})\\
+\leq ( \frac{|a_1-a| P_n+|a_2-a| P_{n-2}+...+|a_{N_1}-a| P_{n-N_1+1}}{P_1+P_2+......+P_n})\\
++ ( \frac{|a_{N_1+1}-a| P_{n-N_1}+...+|a_{n-N_3}-a|  P_{N_3+1}}{P_1+P_2+......+P_n})\\
++ ( \frac{|a_{n-N_3+1}-a|  P_{N_3}+...+|a_{n}-a| P_1}{P_1+P_2+......+P_n})       
+\end{eqnarray*}
+\\Since ${a_n}$ is bounded，$\forall n,\exists M>0$
+makes $|a_n-a|<M$
+\begin{eqnarray*}
+( \frac{|a_1-a| P_n+|a_2-a| P_{n-2}+...+|a_{N_1}-a| P_{n-N_1+1}}{P_1+P_2+......+P_n})\\
+\leq M.\frac{P_n+...+P_{n-N_1+1}}{P_1+P_2+...+P_n} \leq N_1 \cdot M \cdot \frac{\varepsilon}{3MN_1}
+=\frac{\varepsilon}{3}
+\end{eqnarray*}
+\begin{eqnarray*}
+( \frac{|a_{N_1+1}-a| P_{n-N_1}+...+|a_{n-N_3}-a|  P_{N_3+1}}{P_1+P_2+......+P_n})\\
+    \leq(\frac{P_{n-N_1}+...+P_{N_3+1}}{P_1+P_2+...+P_n}
+\cdot \frac{\varepsilon}{3})
+    \leq \frac{\varepsilon}{3}
+\end{eqnarray*}
+\begin{eqnarray*}
+( \frac{|a_{n-N_3+1}-a|  P_{N_3}+...+|a_{n}-a| P_1}{P_1+P_2+......+P_n}) \leq \\
+(\frac{P_{N_3}+...+P_1}{P_1+P_2+...+P_n} \cdot \frac{\varepsilon}{3}) \leq \frac{\varepsilon}{3}
+\end{eqnarray*}
+\begin{equation}  
+ \forall n>N_3, | \frac{a_n P_1+a_{n-1} P_2+...+a_1 P_n}{P_1+P_2+......+P_n}-a|\leq \varepsilon 
+\end{equation}
+\\We conclude this lemma. 
+\end{proof}
+
+\subsection{定理6：}
+权值调整方法2：
+\begin{equation}  
+ \begin{aligned}
+ & \rho_i(k+1)=\frac{1\cdot\rho_i(0)+...+k\cdot\rho_i(k-1)}
+   {\frac{(k+2)(k+3)}{2}}+\\
+ & \frac{(k+1)\cdot\rho_i(k)+ (k+2)\cdot\frac{b_i(k+1)}{m_i(k+1)}}
+   {\frac{(k+2)(k+3)}{2}}\\
+&\rho_i(k+1)\rightarrow \frac{B_i}{M_i}
+ \end{aligned}
+\end{equation}
+\\证明过程：
+\\$\rho_i(1)=\frac{\rho_i(0)+2\frac{b_i(1)}{m_i(1)}}{\frac{2.3}{2}}=\frac{1}{3}\rho_i(0)+\frac{2}{3}\frac{b_i(1)}{m_i(1)}=a_i^1(0)\rho_i(0)+a_i^1\frac{b_i(1)}{m_i(1)}$
+\\$\rho_i(2)=\frac{\rho_i(0)+2\rho_i(1)+3\frac{b_i(1)}{m_i(1)}}{\frac{3.4}{2}}=a_i^2(0)\rho_i(0)+a_i^2\frac{b_i(1)}{m_i(1)}+a_i^2(2)\frac{b_i(2)}{m_i(2)}$
+\\设$\rho_i(n)=a_i^n(0)\rho_i(0)+a_i^n(1)\frac{b_i(1)}{m_i(1)}+a_i^n(2)\frac{b_i(2)}{m_i(2)}+...+a_i^n(n)\frac{b_i(n)}{m_i(n)}$
+\\其中参数经过数学计算处理得到:
+$ \begin{displaymath}
+   a_i^n(k) = \left\{
+     \begin{array}{lr}
+       \frac{2}{k+2}  & n = k\\
+       \frac{4(k+1)}{(k+2)^2(k+3)} & n=k+1 \\
+       \frac{n+3}{n+1}\frac{4(k+1)}{(k+4)(k+3)(k+2)} & n>k+1
+     \end{array}
+   \right.
+\end{displaymath}$
+\\令$P_k=a_i^n(n-k)$
+\\则$\rho_i(n)=P_n\rho_i(0)+P_{n-1}\frac{b_i(1)}{m_i(1)}+P_{n-2}\frac{b_i(2)}{m_i(2)}+...+P_0\frac{b_i(n)}{m_i(n)}$
+\\其中系数$P_1,P_2...P_n$满足$\lim \frac{P_n}{P_1+P_2+......+P_n} \rightarrow 0$，即$\rho_i(n)$满足引理四，所以有$\rho_i(n)\rightarrow \frac{B_i}{M_i}$
+
+\subsection*{定理六具体证明过程：}
+\begin{equation}  
+\rho_i(k+1)=\frac{1\cdot\rho_i(0)+...+k\cdot\rho_i(k-1)+(k+1)\cdot\rho_i(k)+(k+2)\cdot\frac{b_i(k+1)}{m_i(k+1)}}{\frac{(k+2)(k+3)}{2}}
+\end{equation}
+\\证明过程：
+\\$\rho_i(1)=\frac{\rho_i(0)+2\frac{b_i(1)}{m_i(1)}}{\frac{2.3}{2}}=\frac{1}{3}\rho_i(0)+\frac{2}{3}\frac{b_i(1)}{m_i(1)}=a_i^1(0)\rho_i(0)+a_i^1\frac{b_i(1)}{m_i(1)}$
+\\$\rho_i(2)=\frac{\rho_i(0)+2\rho_i(1)+3\frac{b_i(1)}{m_i(1)}}{\frac{3.4}{2}}=a_i^2(0)\rho_i(0)+a_i^2\frac{b_i(1)}{m_i(1)}+a_i^2(2)\frac{b_i(2)}{m_i(2)}$
+\begin{equation}
+\rho_i(n)=a_i^n(0)\rho_i(0)+a_i^n(1)\frac{b_i(1)}{m_i(1)}+a_i^n(2)\frac{b_i(2)}{m_i(2)}+...+a_i^n(n)\frac{b_i(n)}{m_i(n)}
+\end{equation}
+\\将（7）公式中的n分别取值0，1，2，3.......k，分别得到
+$\rho_i(0),\rho_i(1),\rho_i(2),\rho_i(3).....\rho_i(k+1)$，
+然后带入到公式（6）中，并得到等号两边对应系数相等，
+$\rho_i(0)$的系数对应相等将会得到
+$a_i^n(0)=\frac{1+2a_i^1(0)+3a_i^2(0)+...+na_i^{n-1}(0)}{\frac{(n+1)(n+2)}{2}}$
+\\${\frac{(n+1)(n+2)}{2}}a_i^n(0)={1+2a_i^1(0)+3a_i^2(0)+...+na_i^{n-1}(0)}$
+\\将上式的n取n+1将会得到
+\\${\frac{(n+2)(n+3)}{2}}a_i^{n+1}(0)={1+2a_i^1(0)+3a_i^2(0)+...+na_i^{n-1}(0)+(n+1)a_i^n(0)}$ 
+\\将上边两式做减法将会得到
+\\${\frac{(n+2)(n+3)}{2}}a_i^{n+1}(0)-{\frac{(n+1)(n+2)}{2}}a_i^n(0)=(n+1)a_i^n(0)$
+\\整理得到$a_i^{n+1}(0)=\frac{(n+1)(n+4)}{(n+2)(n+3)}a_i^n(0)$
+\\$a_i^1(0)=\frac{1}{3},a_i^2(0)=\frac{2 \cdot 5}{3 \cdot 4} \cdot \frac{1}{3}$
+\\$a_i^3(0)=\frac{3 \cdot 6}{4 \cdot 5 } \cdot \frac{2 \cdot 5}{3 \cdot 4} \cdot \frac{1}{3}
+=\frac{6}{4} \cdot \frac{2}{4} \cdot \frac{1}{3}$
+\\$a_i^4(0)=\frac{4 \cdot 7}{5 \cdot 6 } \cdot \frac{6 \cdot 2}{4 \cdot 4} \cdot \frac{1}{3}
+=\frac{7}{5} \cdot \frac{2}{4} \cdot \frac{1}{3}$
+\\同理得
+\\$a_i^n(0)=\frac{(n+3)}{(n+1)} \cdot \frac{2}{4} \cdot a_i^1(0)$
+\\同上，再处理$a_i^n(1)$
+
+$\frac{b_i(1)}{m_i(1)}$的系数对应相等将会得到
+\\$a_i^n(1)=\frac{2a_i^1(1)+3a_i^2(1)+...+na_i^{n-1}(1)}{\frac{(n+1)(n+2)}{2}}$
+\\${\frac{(n+1)(n+2)}{2}}a_i^n(1)={2a_i^1(1)+3a_i^2(1)+...+na_i^{n-1}(1)}$
+\\同样将上式n取n+1得到
+\\$\frac{(n+2)(n+3)}{2}a_i^{n+1}(1)=2a_i^1(1)+3a_i^2(1)+...+na_i^{n-1}(1)+(n+1)a_i^{n}(1)$
+\\两式相减得到$a_i^{n+1}(1)=\frac{(n+1)(n+4)}{(n+2)(n+3)}a_i^n(1)$
+\\$a_i^1(1)=\frac{2}{3},a_i^2(1)=\frac{2a_i^1(1)}{\frac{3 \cdot 4}{2}}=\frac{2}{9}$
+\\$a_i^3(1)=\frac{3 \cdot 6}{4 \cdot 5 }  \cdot \frac{2}{9}
+=\frac{1}{5}$
+\\$a_i^4(1)=\frac{4 \cdot 7}{5 \cdot 6 } \cdot \frac{1}{5}$
+\\同理得到：
+\\$a_i^n(1)=\frac{3}{5} \cdot \frac{(n+3)}{(n+1)} \cdot \frac{2}{9} \cdot a_i^2(1)
+=\frac{2}{15} \cdot \frac{(n+3)}{(n+1)} \cdot a_i^2(1)$
+\\再用同样的方式处理$a_i^n(2)$,最后得到
+\\$a_i^n(1)=\frac{(n+3)}{(n+1)} \cdot \frac{4}{6} \cdot a_i^3(2)$
+\\递归得出
+\\$a_i^n(k)=\frac{(n+3)}{(n+1)} \cdot \frac{(k+2)}{k+4} \cdot a_i^{k+1}(k)$
+
+即
+$ \begin{displaymath}
+   a_i^n(k) = \left\{
+     \begin{array}{lr}
+       \frac{2}{k+2}  & n = k\\
+       \frac{4(k+1)}{(k+2)^2(k+3)} & n=k+1 \\
+       \frac{n+3}{n+1}\frac{4(k+1)}{(k+4)(k+3)(k+2)} & n>k+1
+     \end{array}
+   \right.
+\end{displaymath}$
+
+\subsection*{错误权值更新方式：}
+\begin{equation}
+\rho_i(k+1)=\frac{\rho_i(0)+\rho_i(1)+\rho_i(2)+\rho_i(3)+....\rho_i(k)+\frac{b_i(k+1)}{m_i(k+1)}}{(k+2)}
+\end{equation}
+$\\ \rho_i(1)=\frac{\rho_i(0)+\frac{b_i(1)}{m_i(1)}}{2}
+=\frac{1}{2} \cdot \rho_i(0)+\frac{1}{2} \cdot \frac{b_i(1)}{m_i(1)}
+=a_i^1(0)\rho_i(0)+a_i^1(1) \frac {b_i(1)}{m_i(1)}
+\\ \rho_i(2)=\frac{\rho_i(0)+\rho_i(1)+\frac{b_i(2)}{m_i(2)}}{3}
+=a_i^2(0)\rho_i(0)+a_i^2(1) \frac {b_i(1)}{m_i(1)}+a_i^2(2)\frac{b_i(2)}{m_i(2)}
+\\ \rho_i(3)=\frac{\rho_i(0)+\rho_i(1)+\rho_i(2)\frac{b_i(3)}{m_i(3)}}{4}
+=a_i^3(0)\rho_i(0)+a_i^3(1) \frac {b_i(1)}{m_i(1)}+a_i^3(2)\frac{b_i(2)}{m_i(2)}+a_i^3(3)\frac{b_i(3)}{m_i(3)}$
+\\由上可得：
+\begin{equation}
+\rho_i(n)=\frac{\rho_i(0)+\rho_i(1)+...+\rho_i(2)\frac{b_i(n)}{m_i(n)}}{(n+1)}
+=a_i^n(0)\rho_i(0)+a_i^n(1) \frac {b_i(1)}{m_i(1)}+a_i^n(2)\frac{b_i(2)}{m_i(2)}+a_i^n(3)\frac{b_i(3)}{m_i(3)}+....+a_i^n(n)\frac{b_i(n)}{m_i(n)}
+\end{equation}
+\\将上述公式中n分别取0，1，2....k+1,带入到公式（8）中，将会得到等式两边对应的
+$\\ \frac{b_i(1)}{m_i(1)},\frac{b_i(2)}{m_i(2)},\frac{b_i(3)}{m_i(3)}....\frac{b_i(1)}{m_i(k+1)}$
+系数分别相等\\首先处理
+$a_i^n(0),a_i^0(0)=\frac{1}{2},a_i^1(0)=\frac{1}{2}
+\\a_i^n(0)=\frac{a_i^0(0)+a_i^1(0)+a_i^2(0)+...+a_i^{n-1}(0)}{(n+1)}
+\\{(n+1)}a_i^n(0)={a_i^0(0)+a_i^1(0)+a_i^2(0)+...+a_i^{n-1}(0)}
+\\{(n+2)}a_i^{n+1}(0)={a_i^0(0)+a_i^1(0)+a_i^2(0)+...+a_i^n(0)}$
+\\上边两式相减得到
+$a_i^{n+1}(0)=a_i^n(0)=\frac{1}{2}$
+\\再处理
+$a_i^n(1)$
+$a_i^n(1)=\frac{a_i^1(1)+a_i^2(1)+...+a_i^{n-1}(1)}{(n+1)}$
+\\${(n+1)}a_i^n(1)=a_i^1(1)+a_i^2(1)+...+a_i^{n-1}(1)$
+\\${(n+2)}a_i^{n+1}(1)=a_i^1(1)+a_i^2(1)+...+a_i^{n}(1)$
+\\上边两式相减，得到
+$a_i^{n+1}(1)=a_i^n(1)=\frac{1}{6}$
+\\用同样的方法我们可以求得
+$a_i^{n+1}(n-1)=\frac{a_i^n(n-1)}{n+1}=\frac{1}{(n+1) \cdot n}
+\\a_i^n(n)=\frac{1}{n+1}$
+\\所以有公式（9）其中
+$\\a_i^n(0)=\frac{1}{1 \cdot 2},a_i^n(1)=
+\frac{1}{2 \cdot 3},a_i^n(2)=\frac{1}{3 \cdot 4}....a_i^n(n-1)
+=\frac{1}{n \cdot (n+1)},a_i^n(n)=\frac{1}{n+1}
+\\p(k)=a_i^n(n-k)
+\frac{b_i(n)}{m_i(n)} \rightarrow \frac{B_i}{M_i}
+\frac{P(n)}{P(1)+P(2)+...+P(n)}=
+\frac{\frac{1}{2}}{\frac{1}{1 \cdot 2}+\frac{1}{2 \cdot 3}+\frac{1}{3 \cdot 4}+...
++\frac{1}{n \cdot n+1}+\frac{1}{1 \cdot n}} \rightarrow \frac{1}{2}$
+\\所以这种权值更新的方法并不能符合引理四的初始条件，所以这种更新权值的方式是错误的
+\end{CJK}
+\end{document}
